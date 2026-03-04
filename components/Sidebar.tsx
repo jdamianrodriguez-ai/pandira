@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams() || new URLSearchParams();
   const formatParam = searchParams.get("filter");
 
   const [collections, setCollections] = useState<any[]>([]);
