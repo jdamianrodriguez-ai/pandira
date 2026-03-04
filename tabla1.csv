@@ -1,0 +1,7 @@
+name;type;configuración
+id;uuid;primary key + default: gen_random_uuid()
+title;text;required
+year;integer;nullable
+format;text;(DVD / BluRay / Digital)
+cover_url;text;nullable
+created_at;timestamp;default: now()
