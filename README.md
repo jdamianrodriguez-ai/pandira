@@ -39,3 +39,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # pandira
 Pandira – gestor personal de colecciones de películas , videojuegos y mas...
 >>>>>>> 342b017936cdd21d71bf38e15b191edd3aec87e1
+Pandira deployment test
