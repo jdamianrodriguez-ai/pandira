@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerComponentClient } from "@/lib/supabase-server"
+import { createServerComponentClient } from "@/lib/supabase/server"
 
 export async function POST(req: Request) {
   const { searchParams } = new URL(req.url)
