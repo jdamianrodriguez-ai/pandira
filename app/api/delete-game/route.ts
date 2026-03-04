@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server"
 import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 
 export async function POST(req: Request) {
-
-  const cookieStore = (await cookies()) as any
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
+        get() { return undefined },
         set() {},
         remove() {}
       }
@@ -33,5 +28,4 @@ export async function POST(req: Request) {
     .eq("id", id)
 
   return NextResponse.redirect(new URL("/games", req.url))
-
 }
