@@ -1,6 +1,7 @@
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { Inter, Playfair_Display } from "next/font/google";
+export const dynamic = "force-dynamic";
 
 const inter = Inter({
   subsets: ["latin"],
