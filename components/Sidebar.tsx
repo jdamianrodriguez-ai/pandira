@@ -61,7 +61,9 @@ return ( <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-
 
 ```
   <div className="relative px-6 pt-10 pb-8">
-    <h1 className="text-2xl tracking-wide text-white">Pandira</h1>
+    <h1 className="text-2xl tracking-wide text-white">
+      Pandira
+    </h1>
     <p className="text-xs text-gray-400 mt-2 uppercase tracking-widest">
       Collector Edition
     </p>
@@ -69,12 +71,17 @@ return ( <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-
 
   <nav className="relative px-4 space-y-8 text-sm">
 
+    {/* Colección */}
     <div>
       <div className="text-xs text-gray-400 uppercase tracking-widest px-4 mb-3">
         Colección
       </div>
 
-      <Link href="/movie" className={linkClasses(pathname === "/movie")}>
+      {/* Películas */}
+      <Link
+        href="/movie"
+        className={linkClasses(pathname === "/movie")}
+      >
         🎬 Películas
       </Link>
 
@@ -114,7 +121,11 @@ return ( <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-
 
       </div>
 
-      <Link href="/games" className={linkClasses(pathname === "/games")}>
+      {/* Videojuegos */}
+      <Link
+        href="/games"
+        className={linkClasses(pathname === "/games")}
+      >
         🎮 Videojuegos
       </Link>
 
@@ -122,6 +133,7 @@ return ( <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-
 
     <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
+    {/* Próximamente */}
     <div className="space-y-3">
       <div className="text-xs text-gray-400 uppercase tracking-widest px-4">
         Próximamente
@@ -137,6 +149,7 @@ return ( <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-
     </div>
 
   </nav>
+
 </aside>
 ```
 
