@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function Sidebar() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams() || new URLSearchParams();
-  const formatParam = searchParams.get("filter");
+const pathname = usePathname();
+const formatParam = null;
 
   const [collections, setCollections] = useState<any[]>([]);
 
