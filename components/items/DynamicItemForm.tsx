@@ -17,6 +17,7 @@ type,
 initialData = {},
 onSubmit,
 }: DynamicItemFormProps) {
+
 const typeConfig = getTypeConfig(type)
 
 if (!typeConfig) {
@@ -35,38 +36,40 @@ type,
 
 const [errors, setErrors] = useState<ValidationError[]>([])
 
-const handleChange = (key: string, value: any) => {
+function handleChange(key: string, value: any) {
 setFormData((prev: any) => ({
 ...prev,
 [key]: value,
 }))
 }
 
-const getFieldError = (fieldKey: string) => {
+function getFieldError(fieldKey: string) {
 return errors.find((err) => err.field === fieldKey)
 }
 
-const renderInput = (fieldKey: string) => {
+function renderInput(fieldKey: string) {
+
+```
 const definition = fieldDefinitions[fieldKey]
 if (!definition) return null
 
-```
 const value = formData[fieldKey] ?? ""
 const fieldError = getFieldError(fieldKey)
 
 const baseInputClass =
   "w-full bg-gray-800 border rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
 
-const errorClass = fieldError
-  ? "border-red-500"
-  : "border-gray-700"
+const errorClass = fieldError ? "border-red-500" : "border-gray-700"
+
+const inputClass = baseInputClass + " " + errorClass
 
 switch (definition.type) {
+
   case "textarea":
     return (
       <>
         <textarea
-          className={`${baseInputClass} ${errorClass}`}
+          className={inputClass}
           value={value}
           onChange={(e) => handleChange(fieldKey, e.target.value)}
         />
@@ -83,14 +86,12 @@ switch (definition.type) {
       <>
         <input
           type="number"
-          className={`${baseInputClass} ${errorClass}`}
+          className={inputClass}
           value={value}
           onChange={(e) =>
             handleChange(
               fieldKey,
-              e.target.value === ""
-                ? ""
-                : Number(e.target.value)
+              e.target.value === "" ? "" : Number(e.target.value)
             )
           }
         />
@@ -108,14 +109,12 @@ switch (definition.type) {
         <input
           type="number"
           step="0.01"
-          className={`${baseInputClass} ${errorClass}`}
+          className={inputClass}
           value={value}
           onChange={(e) =>
             handleChange(
               fieldKey,
-              e.target.value === ""
-                ? ""
-                : Number(e.target.value)
+              e.target.value === "" ? "" : Number(e.target.value)
             )
           }
         />
@@ -133,7 +132,7 @@ switch (definition.type) {
         <input
           type="text"
           placeholder="Comma separated"
-          className={`${baseInputClass} ${errorClass}`}
+          className={inputClass}
           value={Array.isArray(value) ? value.join(", ") : value}
           onChange={(e) =>
             handleChange(
@@ -158,11 +157,9 @@ switch (definition.type) {
       <>
         <input
           type="text"
-          className={`${baseInputClass} ${errorClass}`}
+          className={inputClass}
           value={value}
-          onChange={(e) =>
-            handleChange(fieldKey, e.target.value)
-          }
+          onChange={(e) => handleChange(fieldKey, e.target.value)}
         />
         {fieldError && (
           <div className="text-red-500 text-sm mt-1">
@@ -176,10 +173,11 @@ switch (definition.type) {
 
 }
 
-const handleSubmit = async (e: React.FormEvent) => {
-e.preventDefault()
+async function handleSubmit(e: React.FormEvent) {
 
 ```
+e.preventDefault()
+
 const validationErrors = validateItem(formData)
 
 if (validationErrors.length > 0) {
@@ -197,22 +195,30 @@ await onSubmit(formData)
 return ( <form
    onSubmit={handleSubmit}
    className="max-w-3xl mx-auto p-8 text-white space-y-6"
- > <h2 className="text-2xl font-bold mb-4">
-{initialData?.id ? "Edit Item" : "Create Item"} </h2>
+ >
 
 ```
+  <h2 className="text-2xl font-bold mb-4">
+    {initialData?.id ? "Edit Item" : "Create Item"}
+  </h2>
+
   {allFields.map((fieldKey) => {
+
     const definition = fieldDefinitions[fieldKey]
     if (!definition) return null
 
     return (
       <div key={fieldKey}>
+
         <label className="block text-sm text-gray-400 mb-2">
           {definition.label}
         </label>
+
         {renderInput(fieldKey)}
+
       </div>
     )
+
   })}
 
   <button
@@ -221,6 +227,7 @@ return ( <form
   >
     Save
   </button>
+
 </form>
 ```
 
