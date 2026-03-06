@@ -1,57 +1,61 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { createServerComponentClient } from "@/lib/supabase/server"
 
 export async function POST() {
-  try {
 
-    const { data: movies, error } = await supabase
-      .from("movies")
-      .select("*")
+  const supabase = await createServerComponentClient()
 
-    if (error) throw error
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    const apiKey = process.env.TMDB_API_KEY
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+  }
 
-    for (const movie of movies || []) {
+  const { data: games } = await supabase
+    .from("games")
+    .select("*")
+    .eq("user_id", user.id)
 
-      if (!movie.tmdb_id) continue
+  if (!games) {
+    return NextResponse.json({ success: true, updated: 0 })
+  }
+
+  let updated = 0
+
+  for (const game of games) {
+
+    try {
 
       const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${movie.tmdb_id}?api_key=${apiKey}&language=es-ES`
+        `https://api.rawg.io/api/games/${game.rawg_id}?key=${process.env.RAWG_API_KEY}`
       )
 
       const data = await res.json()
 
-      if (!data) continue
-
       await supabase
-        .from("movies")
+        .from("games")
         .update({
-          title: data.title,
-          overview: data.overview,
-          poster: data.poster_path
-            ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
-            : null,
-          year: data.release_date
-            ? parseInt(data.release_date.substring(0,4))
-            : null
+          title: data.name,
+          cover: data.background_image,
+          year: data.released ? data.released.split("-")[0] : null
         })
-        .eq("id", movie.id)
+        .eq("id", game.id)
 
-      console.log("Updated:", data.title)
+      updated++
+
+    } catch (err) {
+
+      console.log("Error con RAWG:", game.rawg_id)
 
     }
 
-    return NextResponse.json({ success: true })
-
-  } catch (err: any) {
-
-    console.error(err)
-
-    return NextResponse.json(
-      { error: err.message },
-      { status: 500 }
-    )
-
   }
+
+  return NextResponse.json({
+    success: true,
+    updated
+  })
+
 }
