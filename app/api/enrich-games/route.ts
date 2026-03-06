@@ -13,10 +13,11 @@ export async function POST() {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 })
   }
 
+  // Solo juegos sin portada
   const { data: games, error } = await supabase
     .from("games")
     .select("*")
-    .eq("user_id", user.id)
+    .is("cover", null)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -53,7 +54,7 @@ export async function POST() {
 
       updated++
 
-    } catch {
+    } catch (err) {
 
       console.log("Error enriqueciendo:", game.rawg_id)
 
@@ -65,5 +66,4 @@ export async function POST() {
     success: true,
     updated
   })
-
 }
