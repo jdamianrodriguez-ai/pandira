@@ -26,7 +26,7 @@ export default function NewItemClient({ onSubmit }: Props) {
         >
           {typeKeys.map((key) => (
             <option key={key} value={key}>
-              {typeRegistry[key].label}
+              {typeRegistry[key as keyof typeof typeRegistry].label}
             </option>
           ))}
         </select>

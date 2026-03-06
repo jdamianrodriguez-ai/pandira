@@ -40,11 +40,14 @@ console.log("EDIT ITEM TYPE:", item?.type)
         Edit {item.title}
       </h1>
 
-      <DynamicItemForm
-        mode="edit"
-        type={item.type}
-        initialData={item}
-      />
+<DynamicItemForm
+  mode="edit"
+  type={item.type}
+  initialData={item}
+  onSubmit={async (data) => {
+    console.log("Saving item", data)
+  }}
+/>
     </div>
   )
 }

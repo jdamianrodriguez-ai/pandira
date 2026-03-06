@@ -1,4 +1,4 @@
-import { getTypeConfig } from "./typeRegistry"
+import { getTypeConfig } from "../typeRegistry"
 
 export interface ValidationError {
   field: string

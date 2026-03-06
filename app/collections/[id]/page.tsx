@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function CollectionPage({ params }: PageProps) {
   const { id } = await params
-  const supabase = createServerComponentClient()
+  const supabase = await createServerComponentClient()
 
   // Obtener colección
   const { data: collection } = await supabase

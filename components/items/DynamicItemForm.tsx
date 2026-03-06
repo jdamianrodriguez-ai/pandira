@@ -1,11 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { fieldDefinitions } from "@/lib/itemSystem/fieldDefinitions"
-import { getTypeConfig } from "@/lib/itemSystem/typeRegistry"
-import { validateItem, ValidationError } from "@/lib/itemSystem/validateItem"
 
-interface DynamicItemFormProps {
+type Props = {
 mode?: "create" | "edit"
 type: string
 initialData?: any
@@ -16,220 +13,50 @@ export default function DynamicItemForm({
 type,
 initialData = {},
 onSubmit,
-}: DynamicItemFormProps) {
-
-const typeConfig = getTypeConfig(type)
-
-if (!typeConfig) {
-return <div className="text-red-500">Unknown type: {type}</div>
-}
-
-const allFields = [
-...typeConfig.highlightFields,
-...typeConfig.detailFields,
-]
+}: Props) {
 
 const [formData, setFormData] = useState<any>({
 type,
-...initialData,
+...initialData
 })
-
-const [errors, setErrors] = useState<ValidationError[]>([])
 
 function handleChange(key: string, value: any) {
 setFormData((prev: any) => ({
 ...prev,
-[key]: value,
+[key]: value
 }))
 }
 
-function getFieldError(fieldKey: string) {
-return errors.find((err) => err.field === fieldKey)
-}
-
-function renderInput(fieldKey: string) {
-
-```
-const definition = fieldDefinitions[fieldKey]
-if (!definition) return null
-
-const value = formData[fieldKey] ?? ""
-const fieldError = getFieldError(fieldKey)
-
-const baseInputClass =
-  "w-full bg-gray-800 border rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
-
-const errorClass = fieldError ? "border-red-500" : "border-gray-700"
-
-const inputClass = baseInputClass + " " + errorClass
-
-switch (definition.type) {
-
-  case "textarea":
-    return (
-      <>
-        <textarea
-          className={inputClass}
-          value={value}
-          onChange={(e) => handleChange(fieldKey, e.target.value)}
-        />
-        {fieldError && (
-          <div className="text-red-500 text-sm mt-1">
-            {fieldError.message}
-          </div>
-        )}
-      </>
-    )
-
-  case "number":
-    return (
-      <>
-        <input
-          type="number"
-          className={inputClass}
-          value={value}
-          onChange={(e) =>
-            handleChange(
-              fieldKey,
-              e.target.value === "" ? "" : Number(e.target.value)
-            )
-          }
-        />
-        {fieldError && (
-          <div className="text-red-500 text-sm mt-1">
-            {fieldError.message}
-          </div>
-        )}
-      </>
-    )
-
-  case "currency":
-    return (
-      <>
-        <input
-          type="number"
-          step="0.01"
-          className={inputClass}
-          value={value}
-          onChange={(e) =>
-            handleChange(
-              fieldKey,
-              e.target.value === "" ? "" : Number(e.target.value)
-            )
-          }
-        />
-        {fieldError && (
-          <div className="text-red-500 text-sm mt-1">
-            {fieldError.message}
-          </div>
-        )}
-      </>
-    )
-
-  case "array":
-    return (
-      <>
-        <input
-          type="text"
-          placeholder="Comma separated"
-          className={inputClass}
-          value={Array.isArray(value) ? value.join(", ") : value}
-          onChange={(e) =>
-            handleChange(
-              fieldKey,
-              e.target.value
-                .split(",")
-                .map((v) => v.trim())
-                .filter((v) => v !== "")
-            )
-          }
-        />
-        {fieldError && (
-          <div className="text-red-500 text-sm mt-1">
-            {fieldError.message}
-          </div>
-        )}
-      </>
-    )
-
-  default:
-    return (
-      <>
-        <input
-          type="text"
-          className={inputClass}
-          value={value}
-          onChange={(e) => handleChange(fieldKey, e.target.value)}
-        />
-        {fieldError && (
-          <div className="text-red-500 text-sm mt-1">
-            {fieldError.message}
-          </div>
-        )}
-      </>
-    )
-}
-```
-
-}
-
 async function handleSubmit(e: React.FormEvent) {
-
-```
 e.preventDefault()
-
-const validationErrors = validateItem(formData)
-
-if (validationErrors.length > 0) {
-  setErrors(validationErrors)
-  return
-}
-
-setErrors([])
-
 await onSubmit(formData)
-```
-
 }
 
-return ( <form
-   onSubmit={handleSubmit}
-   className="max-w-3xl mx-auto p-8 text-white space-y-6"
- >
+return (
+  <form onSubmit={handleSubmit} className="space-y-4">
 
-```
-  <h2 className="text-2xl font-bold mb-4">
-    {initialData?.id ? "Edit Item" : "Create Item"}
-  </h2>
+    <input
+      type="text"
+      value={formData.title || ""}
+      onChange={(e) => handleChange("title", e.target.value)}
+      placeholder="Title"
+      className="border p-2 rounded w-full"
+    />
 
-  {allFields.map((fieldKey) => {
+    <textarea
+      value={formData.description || ""}
+      onChange={(e) => handleChange("description", e.target.value)}
+      placeholder="Description"
+      className="border p-2 rounded w-full"
+    />
 
-    const definition = fieldDefinitions[fieldKey]
-    if (!definition) return null
+    <button
+      type="submit"
+      className="bg-blue-600 text-white px-4 py-2 rounded"
+    >
+      Save
+    </button>
 
-    return (
-      <div key={fieldKey}>
-
-        <label className="block text-sm text-gray-400 mb-2">
-          {definition.label}
-        </label>
-
-        {renderInput(fieldKey)}
-
-      </div>
-    )
-
-  })}
-
-  <button
-    type="submit"
-    className="bg-blue-600 hover:bg-blue-700 transition px-6 py-3 rounded-lg font-semibold"
-  >
-    Save
-  </button>
-
-</form>
-```
-
+  </form>
 )
 }
