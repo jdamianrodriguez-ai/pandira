@@ -3,11 +3,21 @@
 import { useState } from "react"
 import CollectionLayout from "@/components/items/CollectionLayout"
 import Link from "next/link"
+import Image from "next/image"
 import MovieSearchModal from "@/components/MovieSearchModal"
 import AIInsightsPanel from "@/components/AIInsightsPanel"
 
-export default function MoviesClient({ initialMovies }: any) {
-  const [items] = useState(initialMovies || [])
+type Movie = {
+  id: string
+  tmdb_id: number
+  title?: string
+  poster?: string | null
+  year?: number | null
+  director?: string | null
+}
+
+export default function MoviesClient({ initialMovies }: { initialMovies: Movie[] }) {
+  const [items] = useState<Movie[]>(initialMovies || [])
   const [title, setTitle] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -85,7 +95,7 @@ export default function MoviesClient({ initialMovies }: any) {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-10">
 
-          {items.map((movie: any) => (
+          {items.map((movie) => (
             <Link
               href={`/movie/${movie.id}`}
               key={movie.id}
@@ -93,18 +103,33 @@ export default function MoviesClient({ initialMovies }: any) {
             >
               <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] bg-gray-800">
 
-                <div className="flex items-center justify-center aspect-[2/3]">
+                <div className="relative aspect-[2/3]">
 
-                  <span className="text-xs text-gray-300 text-center px-2">
-                    TMDB #{movie.tmdb_id}
-                  </span>
+                  {movie.poster ? (
+                    <Image
+                      src={movie.poster}
+                      alt={movie.title || "Poster"}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="200px"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center w-full h-full text-xs text-gray-300 text-center px-2">
+                      TMDB #{movie.tmdb_id}
+                    </div>
+                  )}
 
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/70">
                   <p className="text-xs text-gray-400 truncate">
-                    Director: {movie.director || "Unknown"}
+                    {movie.title || `TMDB #${movie.tmdb_id}`}
                   </p>
+                  {movie.year && (
+                    <p className="text-xs text-gray-500">
+                      {movie.year}
+                    </p>
+                  )}
                 </div>
 
               </div>
