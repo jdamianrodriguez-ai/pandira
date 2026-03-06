@@ -1,4 +1,3 @@
-import { CollectionRepository } from "@/lib/repositories/collection.repository"
 import { createServerComponentClient } from "@/lib/supabase/server"
 import MoviesClient from "./MoviesClient"
 
@@ -13,13 +12,9 @@ export default async function MoviePage() {
     return <div>No autenticado</div>
   }
 
-  const collectionRepository = new CollectionRepository()
-  const collection = await collectionRepository.getUserCollection(user.id)
+  const { data: movies } = await supabase
+    .from("movies")
+    .select("*")
 
-  const movies =
-    collection?.filter(
-      (item: any) => item.catalog_items?.type === "movie"
-    ) || []
-
-  return <MoviesClient initialMovies={movies} />
+  return <MoviesClient initialMovies={movies || []} />
 }
