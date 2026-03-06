@@ -30,7 +30,8 @@ export async function POST() {
 
   for (const game of games) {
 
-    if (game.title && game.cover) continue
+    // si ya tiene portada no lo volvemos a consultar
+    if (game.cover) continue
 
     try {
 
@@ -38,7 +39,17 @@ export async function POST() {
         `https://api.rawg.io/api/games/${game.rawg_id}?key=${process.env.RAWG_API_KEY}`
       )
 
+      if (!res.ok) {
+        console.log("RAWG error status:", res.status)
+        continue
+      }
+
       const data = await res.json()
+
+      if (!data || !data.name) {
+        console.log("RAWG sin datos:", game.rawg_id)
+        continue
+      }
 
       await supabase
         .from("games")
@@ -52,7 +63,9 @@ export async function POST() {
       updated++
 
     } catch (err) {
+
       console.log("Error enriqueciendo:", game.rawg_id)
+
     }
 
   }
@@ -61,4 +74,5 @@ export async function POST() {
     success: true,
     updated
   })
+
 }
