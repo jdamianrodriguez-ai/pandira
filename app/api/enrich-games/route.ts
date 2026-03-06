@@ -16,11 +16,8 @@ export async function POST() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  if (!games || games.length === 0) {
-    return NextResponse.json({
-      success: true,
-      updated: 0
-    })
+  if (!games) {
+    return NextResponse.json({ success: true, updated: 0 })
   }
 
   let updated = 0
@@ -29,51 +26,38 @@ export async function POST() {
 
     try {
 
-      let data: any
-
       const res = await fetch(
         `https://api.rawg.io/api/games/${game.rawg_id}?key=${process.env.RAWG_API_KEY}`
       )
 
-      data = await res.json()
-
-      if (data?.detail) {
-
-        const search = await fetch(
-          `https://api.rawg.io/api/games?search=${encodeURIComponent(game.title ?? "")}&key=${process.env.RAWG_API_KEY}`
-        )
-
-        const searchData = await search.json()
-
-        if (searchData.results?.length) {
-          data = searchData.results[0]
-        } else {
-          continue
-        }
-
-      }
+      const data = await res.json()
 
       const year = data.released
         ? parseInt(data.released.split("-")[0])
-        : null
+        : game.year
 
-      const cover =
+      const newCover =
         data.background_image ||
         data.background_image_additional ||
-        null
+        game.cover
+
+      const newTitle =
+        data.name ||
+        game.title ||
+        "Videojuego"
 
       await supabase
         .from("games")
         .update({
-          title: data.name,
-          cover: cover,
+          title: newTitle,
+          cover: newCover,
           year: year
         })
         .eq("id", game.id)
 
       updated++
 
-    } catch (err) {
+    } catch {
 
       console.log("Error enriqueciendo:", game.rawg_id)
 
@@ -85,5 +69,4 @@ export async function POST() {
     success: true,
     updated
   })
-
 }
