@@ -124,36 +124,23 @@ export default function GamesClient({ initialGames }: any) {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-10">
 
-          {items.map((item: any) => {
-
-            const game = item.catalog_items
+          {items.map((game: any) => {
 
             return (
               <Link
-                href={`/games/${item.catalog_item_id}`}
-                key={item.id}
+                href={`/games/${game.id}`}
+                key={game.id}
                 className="group"
               >
 
                 <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
 
-                  {game?.cover_url && (
+                  {game?.cover && (
                     <img
-                      src={game.cover_url}
+                      src={game.cover}
                       alt={game.title}
                       className="w-full aspect-[3/4] object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                     />
-                  )}
-
-                  {/* METACRITIC BADGE */}
-                  {game?.metacritic && (
-                    <div
-                      className={`absolute top-3 right-3 text-white text-xs font-bold px-2 py-1 rounded-md shadow ${getMetacriticColor(
-                        game.metacritic
-                      )}`}
-                    >
-                      ⭐ {game.metacritic}
-                    </div>
                   )}
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -161,12 +148,20 @@ export default function GamesClient({ initialGames }: any) {
                   <div className="absolute bottom-0 left-0 right-0 p-4">
 
                     <h3 className="text-sm font-semibold truncate">
-                      {game?.title}
+                      {game?.title || "Videojuego"}
                     </h3>
 
                     {game?.year && (
                       <p className="text-xs text-gray-400 mt-1">
                         {game.year}
+                      </p>
+                    )}
+
+                    {game?.platform && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        {Array.isArray(game.platform)
+                          ? game.platform.join(", ")
+                          : game.platform}
                       </p>
                     )}
 
