@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createServerComponentClient } from "@/lib/supabase/server"
 
 export async function POST() {
+
+  const supabase = await createServerComponentClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+  }
 
   const { data: games, error } = await supabase
     .from("games")
     .select("*")
+    .eq("user_id", user.id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -24,6 +30,8 @@ export async function POST() {
 
   for (const game of games) {
 
+    if (game.title && game.cover) continue
+
     try {
 
       const res = await fetch(
@@ -32,35 +40,19 @@ export async function POST() {
 
       const data = await res.json()
 
-      const year = data.released
-        ? parseInt(data.released.split("-")[0])
-        : game.year
-
-      const newCover =
-        data.background_image ||
-        data.background_image_additional ||
-        game.cover
-
-      const newTitle =
-        data.name ||
-        game.title ||
-        "Videojuego"
-
       await supabase
         .from("games")
         .update({
-          title: newTitle,
-          cover: newCover,
-          year: year
+          title: data.name,
+          cover: data.background_image,
+          year: data.released ? parseInt(data.released.split("-")[0]) : null
         })
         .eq("id", game.id)
 
       updated++
 
-    } catch {
-
+    } catch (err) {
       console.log("Error enriqueciendo:", game.rawg_id)
-
     }
 
   }
