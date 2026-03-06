@@ -8,9 +8,20 @@ const supabase = createClient(
 
 export async function POST() {
 
-  const { data: games } = await supabase
+  const { data: games, error } = await supabase
     .from("games")
     .select("*")
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  if (!games || games.length === 0) {
+    return NextResponse.json({
+      success: true,
+      updated: 0
+    })
+  }
 
   let updated = 0
 
@@ -18,16 +29,14 @@ export async function POST() {
 
     try {
 
-      let data
+      let data: any
 
-      // intento directo por ID
       const res = await fetch(
         `https://api.rawg.io/api/games/${game.rawg_id}?key=${process.env.RAWG_API_KEY}`
       )
 
       data = await res.json()
 
-      // si RAWG no encuentra el juego
       if (data?.detail) {
 
         const search = await fetch(
@@ -76,4 +85,5 @@ export async function POST() {
     success: true,
     updated
   })
+
 }
