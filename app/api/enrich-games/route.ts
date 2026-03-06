@@ -1,28 +1,6 @@
 import { NextResponse } from "next/server"
 import { createServerComponentClient } from "@/lib/supabase/server"
 
-async function translateToSpanish(text: string) {
-
-  try {
-
-    const res = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q=${encodeURIComponent(text)}`
-    )
-
-    const data = await res.json()
-
-    if (!data || !data[0]) return text
-
-    return data[0].map((t: any) => t[0]).join("")
-
-  } catch {
-
-    return text
-
-  }
-
-}
-
 export async function POST() {
 
   const supabase = await createServerComponentClient()
@@ -35,7 +13,6 @@ export async function POST() {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 })
   }
 
-  // Obtener juegos del usuario
   const { data: games, error } = await supabase
     .from("games")
     .select("*")
@@ -61,15 +38,6 @@ export async function POST() {
 
       const data = await res.json()
 
-      let description =
-        data.description_raw ||
-        data.description?.replace(/<[^>]*>/g, "") ||
-        null
-
-      if (description) {
-        description = await translateToSpanish(description)
-      }
-
       const year = data.released
         ? parseInt(data.released.split("-")[0])
         : null
@@ -77,15 +45,15 @@ export async function POST() {
       await supabase
         .from("games")
         .update({
-          title: game.title || data.name,
-          cover: game.cover || data.background_image,
-          year: game.year || year
+          title: data.name,
+          cover: data.background_image,
+          year: year
         })
         .eq("id", game.id)
 
       updated++
 
-    } catch (err) {
+    } catch {
 
       console.log("Error enriqueciendo:", game.rawg_id)
 
@@ -97,4 +65,5 @@ export async function POST() {
     success: true,
     updated
   })
+
 }
