@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createServerComponentClient } from "@/lib/supabase/server"
 
 export async function POST() {
 
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = await createServerComponentClient()
 
   const {
     data: { user },
@@ -47,9 +46,7 @@ export async function POST() {
       updated++
 
     } catch (err) {
-
       console.log("Error RAWG:", game.rawg_id)
-
     }
 
   }
