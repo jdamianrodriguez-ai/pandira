@@ -7,7 +7,7 @@ import MovieSearchModal from "@/components/MovieSearchModal"
 import AIInsightsPanel from "@/components/AIInsightsPanel"
 
 export default function MoviesClient({ initialMovies }: any) {
-  const [items, setItems] = useState(initialMovies || [])
+  const [items] = useState(initialMovies || [])
   const [title, setTitle] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -84,41 +84,39 @@ export default function MoviesClient({ initialMovies }: any) {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-10">
-          {items.map((item: any) => {
-            const movie = item.catalog_items
-            return (
-              <Link
-                href={`/movie/${item.catalog_item_id}`}
-                key={item.id}
-                className="group"
-              >
-                <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+          {items.map((movie: any) => (
+            <Link
+              href={`/movie/${movie.id}`}
+              key={movie.id}
+              className="group"
+            >
+              <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
 
-                  {movie?.cover_url && (
-                    <img
-                      src={movie.cover_url}
-                      alt={movie.title}
-                      className="w-full aspect-[2/3] object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                    />
+                {movie.cover_url && (
+                  <img
+                    src={movie.cover_url}
+                    alt={movie.title}
+                    className="w-full aspect-[2/3] object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                  />
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-sm font-semibold truncate">
+                    {movie.title || "Sin título"}
+                  </h3>
+
+                  {movie.year && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {movie.year}
+                    </p>
                   )}
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-sm font-semibold truncate">
-                      {movie?.title}
-                    </h3>
-                    {movie?.year && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        {movie.year}
-                      </p>
-                    )}
-                  </div>
-
                 </div>
-              </Link>
-            )
-          })}
+
+              </div>
+            </Link>
+          ))}
         </div>
 
       </div>
