@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
-import { createServerComponentClient } from "@/lib/supabase/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
 
 export async function POST() {
 
-  const supabase = await createServerComponentClient()
+  const supabase = createRouteHandlerClient({ cookies })
 
   const {
     data: { user },
@@ -39,7 +40,7 @@ export async function POST() {
         .update({
           title: data.name,
           cover: data.background_image,
-          year: data.released ? data.released.split("-")[0] : null
+          year: data.released
         })
         .eq("id", game.id)
 
@@ -47,7 +48,7 @@ export async function POST() {
 
     } catch (err) {
 
-      console.log("Error con RAWG:", game.rawg_id)
+      console.log("Error RAWG:", game.rawg_id)
 
     }
 
