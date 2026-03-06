@@ -1,4 +1,3 @@
-import { CollectionRepository } from "@/lib/repositories/collection.repository"
 import { createServerComponentClient } from "@/lib/supabase/server"
 import GamesClient from "./GamesClient"
 
@@ -14,14 +13,16 @@ export default async function GamesPage() {
     return <div>No autenticado</div>
   }
 
-  const collectionRepository = new CollectionRepository()
+  // Obtener juegos del usuario directamente desde la tabla games
+  const { data: games, error } = await supabase
+    .from("games")
+    .select("*")
+    .eq("user_id", user.id)
 
-  const collection = await collectionRepository.getUserCollection(user.id)
+  if (error) {
+    console.error("Error cargando juegos:", error)
+    return <div>Error cargando videojuegos</div>
+  }
 
-  const games =
-    collection?.filter(
-      (item: any) => item.catalog_items?.type === "game"
-    ) || []
-
-  return <GamesClient initialGames={games} />
+  return <GamesClient initialGames={games || []} />
 }
