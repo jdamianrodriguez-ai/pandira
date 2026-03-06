@@ -1,19 +1,13 @@
 import { NextResponse } from "next/server"
-import { createServerComponentClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST() {
 
-  const supabase = await createServerComponentClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 })
-  }
-
-  // Solo juegos sin portada
   const { data: games, error } = await supabase
     .from("games")
     .select("*")
@@ -66,4 +60,5 @@ export async function POST() {
     success: true,
     updated
   })
+
 }
