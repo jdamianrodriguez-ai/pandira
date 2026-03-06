@@ -84,39 +84,33 @@ export default function MoviesClient({ initialMovies }: any) {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-10">
+
           {items.map((movie: any) => (
             <Link
               href={`/movie/${movie.id}`}
               key={movie.id}
               className="group"
             >
-              <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+              <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] bg-gray-800">
 
-                {movie.cover_url && (
-                  <img
-                    src={movie.cover_url}
-                    alt={movie.title}
-                    className="w-full aspect-[2/3] object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                  />
-                )}
+                <div className="flex items-center justify-center aspect-[2/3]">
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  <span className="text-xs text-gray-300 text-center px-2">
+                    TMDB #{movie.tmdb_id}
+                  </span>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="text-sm font-semibold truncate">
-                    {movie.title || "Sin título"}
-                  </h3>
+                </div>
 
-                  {movie.year && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      {movie.year}
-                    </p>
-                  )}
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/70">
+                  <p className="text-xs text-gray-400 truncate">
+                    Director: {movie.director || "Unknown"}
+                  </p>
                 </div>
 
               </div>
             </Link>
           ))}
+
         </div>
 
       </div>
