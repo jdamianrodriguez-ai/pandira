@@ -35,10 +35,11 @@ export async function POST() {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 })
   }
 
+  // Obtener juegos del usuario
   const { data: games, error } = await supabase
-    .from("catalog_items")
+    .from("games")
     .select("*")
-    .eq("type", "game")
+    .eq("user_id", user.id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -55,7 +56,7 @@ export async function POST() {
     try {
 
       const res = await fetch(
-        `https://api.rawg.io/api/games/${game.external_id}?key=${process.env.RAWG_API_KEY}`
+        `https://api.rawg.io/api/games/${game.rawg_id}?key=${process.env.RAWG_API_KEY}`
       )
 
       const data = await res.json()
@@ -63,20 +64,22 @@ export async function POST() {
       let description =
         data.description_raw ||
         data.description?.replace(/<[^>]*>/g, "") ||
-        game.description ||
         null
 
       if (description) {
         description = await translateToSpanish(description)
       }
 
+      const year = data.released
+        ? parseInt(data.released.split("-")[0])
+        : null
+
       await supabase
-        .from("catalog_items")
+        .from("games")
         .update({
-          description: description,
-          cover_url: game.cover_url || data.background_image,
-          metacritic: data.metacritic ?? game.metacritic,
-          rating: data.rating ?? game.rating
+          title: game.title || data.name,
+          cover: game.cover || data.background_image,
+          year: game.year || year
         })
         .eq("id", game.id)
 
@@ -84,7 +87,7 @@ export async function POST() {
 
     } catch (err) {
 
-      console.log("Error enriqueciendo:", game.title)
+      console.log("Error enriqueciendo:", game.rawg_id)
 
     }
 
