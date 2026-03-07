@@ -7,12 +7,15 @@ import { supabase } from "@/lib/supabase";
 import LogoutButton from "@/components/LogoutButton";
 
 export default function Sidebar() {
+
   const pathname = usePathname();
   const formatParam = null;
 
   const [collections, setCollections] = useState<any[]>([]);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
+
     async function fetchCollections() {
       const { data, error } = await supabase
         .from("collections")
@@ -31,7 +34,14 @@ export default function Sidebar() {
       }
     }
 
+    async function fetchUser() {
+      const { data } = await supabase.auth.getUser();
+      setUserEmail(data.user?.email ?? null);
+    }
+
     fetchCollections();
+    fetchUser();
+
   }, []);
 
   function isActive(path: string, format?: string) {
@@ -45,6 +55,7 @@ export default function Sidebar() {
   }
 
   function linkClasses(active: boolean) {
+
     if (active) {
       return "relative block px-4 py-2 rounded-xl transition-all duration-300 bg-white/10 text-white shadow-[0_0_20px_rgba(255,255,255,0.05)]";
     }
@@ -63,7 +74,9 @@ export default function Sidebar() {
       </div>
 
       <nav className="relative px-4 space-y-8 text-sm flex-1">
+
         <div>
+
           <div className="text-xs text-gray-400 uppercase tracking-widest px-4 mb-3">
             Colección
           </div>
@@ -73,6 +86,7 @@ export default function Sidebar() {
           </Link>
 
           <div className="mt-4 ml-4 space-y-2 border-l border-white/10 pl-4">
+
             <Link
               href="/movie?filter=DVD"
               className={linkClasses(isActive("/movie", "DVD"))}
@@ -104,11 +118,13 @@ export default function Sidebar() {
                 ))}
               </>
             )}
+
           </div>
 
           <Link href="/games" className={linkClasses(pathname === "/games")}>
             🎮 Videojuegos
           </Link>
+
         </div>
 
         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -121,11 +137,21 @@ export default function Sidebar() {
           <div className="px-4 py-2 text-gray-500">📚 Libros</div>
           <div className="px-4 py-2 text-gray-500">📖 Cómics</div>
         </div>
+
       </nav>
 
-      {/* BOTÓN LOGOUT ABAJO DEL TODO */}
-      <div className="px-6 pb-8">
+      {/* Usuario + Logout */}
+
+      <div className="px-6 pb-8 border-t border-white/10 pt-6">
+
+        {userEmail && (
+          <div className="text-xs text-gray-400 mb-3 truncate">
+            {userEmail}
+          </div>
+        )}
+
         <LogoutButton />
+
       </div>
 
     </aside>
