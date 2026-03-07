@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -52,7 +53,8 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-blur-2xl border-r border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.6)]">
+    <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-blur-2xl border-r border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.6)] flex flex-col">
+
       <div className="relative px-6 pt-10 pb-8">
         <h1 className="text-2xl tracking-wide text-white">Pandira</h1>
         <p className="text-xs text-gray-400 mt-2 uppercase tracking-widest">
@@ -60,7 +62,7 @@ export default function Sidebar() {
         </p>
       </div>
 
-      <nav className="relative px-4 space-y-8 text-sm">
+      <nav className="relative px-4 space-y-8 text-sm flex-1">
         <div>
           <div className="text-xs text-gray-400 uppercase tracking-widest px-4 mb-3">
             Colección
@@ -120,6 +122,12 @@ export default function Sidebar() {
           <div className="px-4 py-2 text-gray-500">📖 Cómics</div>
         </div>
       </nav>
+
+      {/* BOTÓN LOGOUT ABAJO DEL TODO */}
+      <div className="px-6 pb-8">
+        <LogoutButton />
+      </div>
+
     </aside>
   );
 }
