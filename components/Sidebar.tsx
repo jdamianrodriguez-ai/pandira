@@ -15,6 +15,9 @@ export default function Sidebar() {
   const [collections, setCollections] = useState<any[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
+  const [dvdCount, setDvdCount] = useState(0);
+  const [blurayCount, setBlurayCount] = useState(0);
+
   useEffect(() => {
 
     const supabase = createClient();
@@ -36,6 +39,22 @@ export default function Sidebar() {
         setCollections(data);
       }
 
+      // contar DVDs
+      const { count: dvd } = await supabase
+        .from("movies")
+        .select("*", { count: "exact", head: true })
+        .eq("format", "DVD");
+
+      setDvdCount(dvd || 0);
+
+      // contar Blu-ray
+      const { count: bluray } = await supabase
+        .from("movies")
+        .select("*", { count: "exact", head: true })
+        .eq("format", "Blu-ray");
+
+      setBlurayCount(bluray || 0);
+
     }
 
     loadData();
@@ -46,12 +65,10 @@ export default function Sidebar() {
 
     if (pathname !== path) return false;
 
-    // página base (Películas)
     if (!filterValue) {
       return filter === null;
     }
 
-    // filtros
     return filter === filterValue;
 
   }
@@ -108,14 +125,14 @@ export default function Sidebar() {
               href="/movie?filter=DVD"
               className={linkClasses(isActive("/movie", "DVD"))}
             >
-              DVD
+              DVD ({dvdCount})
             </Link>
 
             <Link
               href="/movie?filter=Blu-ray"
               className={linkClasses(isActive("/movie", "Blu-ray"))}
             >
-              Blu-ray
+              Blu-ray ({blurayCount})
             </Link>
 
             {collections.length > 0 && (
