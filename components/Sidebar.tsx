@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import LogoutButton from "@/components/LogoutButton";
 
 export default function Sidebar() {
 
+  const supabase = createClient();
   const pathname = usePathname();
   const formatParam = null;
 
@@ -66,12 +67,16 @@ export default function Sidebar() {
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-blur-2xl border-r border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.6)] flex flex-col">
 
+      {/* HEADER */}
+
       <div className="relative px-6 pt-10 pb-8">
         <h1 className="text-2xl tracking-wide text-white">Pandira</h1>
         <p className="text-xs text-gray-400 mt-2 uppercase tracking-widest">
           Collector Edition
         </p>
       </div>
+
+      {/* MENU */}
 
       <nav className="relative px-4 space-y-8 text-sm flex-1">
 
@@ -130,17 +135,19 @@ export default function Sidebar() {
         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
         <div className="space-y-3">
+
           <div className="text-xs text-gray-400 uppercase tracking-widest px-4">
             Próximamente
           </div>
 
           <div className="px-4 py-2 text-gray-500">📚 Libros</div>
           <div className="px-4 py-2 text-gray-500">📖 Cómics</div>
+
         </div>
 
       </nav>
 
-      {/* Usuario + Logout */}
+      {/* USER + LOGOUT */}
 
       <div className="px-6 pb-8 border-t border-white/10 pt-6">
 
