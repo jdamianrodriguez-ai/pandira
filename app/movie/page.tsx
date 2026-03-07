@@ -10,7 +10,6 @@ export default async function MoviePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 🔒 protección de ruta
   if (!user) {
     redirect("/login")
   }
@@ -18,7 +17,6 @@ export default async function MoviePage() {
   const { data: movies, error } = await supabase
     .from("movies")
     .select("*")
-    .eq("user_id", user.id)
 
   if (error) {
     console.error("Error cargando películas:", error)
