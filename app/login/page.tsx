@@ -36,7 +36,7 @@ export default function LoginPage() {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Redirigir a la app
-    router.replace("/games")
+    router.replace("/")
 
   }
 
