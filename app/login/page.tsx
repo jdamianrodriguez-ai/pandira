@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
+
   const supabase = createClient()
   const router = useRouter()
 
@@ -14,7 +15,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
+
     e.preventDefault()
+
     setLoading(true)
     setError(null)
 
@@ -29,9 +32,12 @@ export default function LoginPage() {
       return
     }
 
-    // refresca SSR y redirige
-    router.refresh()
-    router.push("/games")
+    // Esperar un tick para que Supabase guarde las cookies
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Redirigir a la app
+    router.replace("/games")
+
   }
 
   return (
@@ -40,6 +46,7 @@ export default function LoginPage() {
         onSubmit={handleLogin}
         className="bg-white/5 border border-white/10 rounded-2xl p-8 w-96 space-y-6"
       >
+
         <h1 className="text-2xl font-bold text-center">Login</h1>
 
         <div>
@@ -75,6 +82,7 @@ export default function LoginPage() {
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>
+
       </form>
     </div>
   )
