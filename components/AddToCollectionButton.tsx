@@ -1,13 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 
 interface Props {
   itemId: string
 }
 
 export default function AddToCollectionButton({ itemId }: Props) {
+
+  const supabase = createClient()
+
   const [collections, setCollections] = useState<any[]>([])
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -15,12 +18,14 @@ export default function AddToCollectionButton({ itemId }: Props) {
   const [newCollectionName, setNewCollectionName] = useState("")
 
   async function fetchCollections() {
+
     const { data } = await supabase
       .from("collections")
       .select("*")
       .eq("type", "manual")
 
     setCollections(data || [])
+
   }
 
   useEffect(() => {
@@ -28,6 +33,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
   }, [])
 
   async function handleAdd(collectionId: string) {
+
     setMessage(null)
 
     const { data: existing } = await supabase
@@ -35,7 +41,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
       .select("id")
       .eq("collection_id", collectionId)
       .eq("item_id", itemId)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       setMessage("Ya está en esa colección.")
@@ -54,9 +60,11 @@ export default function AddToCollectionButton({ itemId }: Props) {
     if (!error) {
       setMessage("Añadido correctamente.")
     }
+
   }
 
   async function handleCreateCollection() {
+
     if (!newCollectionName.trim()) return
 
     const { data, error } = await supabase
@@ -71,11 +79,16 @@ export default function AddToCollectionButton({ itemId }: Props) {
       .single()
 
     if (!error && data) {
+
       setNewCollectionName("")
       setCreating(false)
+
       await fetchCollections()
+
       setMessage("Colección creada.")
+
     }
+
   }
 
   return (
@@ -94,6 +107,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
           {/* LISTA COLECCIONES */}
           {collections.length > 0 && (
             <div className="space-y-2">
+
               {collections.map((col) => (
                 <button
                   key={col.id}
@@ -103,6 +117,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
                   {col.name}
                 </button>
               ))}
+
             </div>
           )}
 
@@ -116,6 +131,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
             </button>
           ) : (
             <div className="space-y-2">
+
               <input
                 type="text"
                 value={newCollectionName}
@@ -130,6 +146,7 @@ export default function AddToCollectionButton({ itemId }: Props) {
               >
                 Crear
               </button>
+
             </div>
           )}
 
@@ -138,8 +155,10 @@ export default function AddToCollectionButton({ itemId }: Props) {
               {message}
             </p>
           )}
+
         </div>
       )}
+
     </div>
   )
 }

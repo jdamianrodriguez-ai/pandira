@@ -1,10 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import { useParams, useRouter } from "next/navigation"
 
 export default function MovieDetailPage() {
+
+  const supabase = createClient()
+
   const { id } = useParams()
   const router = useRouter()
 
@@ -12,7 +15,9 @@ export default function MovieDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
     async function loadMovie() {
+
       // 1️⃣ Buscar catalog_item
       const { data: catalogItem } = await supabase
         .from("catalog_items")
@@ -38,9 +43,11 @@ export default function MovieDetailPage() {
       })
 
       setLoading(false)
+
     }
 
     if (id) loadMovie()
+
   }, [id])
 
   if (loading) {
@@ -73,6 +80,7 @@ export default function MovieDetailPage() {
         )}
 
         <div>
+
           <h1 className="text-5xl font-bold mb-6">
             {movie.title}
           </h1>
@@ -121,12 +129,14 @@ export default function MovieDetailPage() {
 
           <button
             onClick={async () => {
+
               await supabase
                 .from("collection_items")
                 .delete()
                 .eq("catalog_item_id", movie.id)
 
               router.push("/movie")
+
             }}
             className="bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 transition"
           >
@@ -136,6 +146,7 @@ export default function MovieDetailPage() {
         </div>
 
       </div>
+
     </div>
   )
 }

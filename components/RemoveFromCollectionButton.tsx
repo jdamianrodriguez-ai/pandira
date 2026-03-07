@@ -1,6 +1,6 @@
 "use client"
 
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 interface Props {
@@ -9,9 +9,12 @@ interface Props {
 }
 
 export default function RemoveFromCollectionButton({ collectionId, itemId }: Props) {
+
   const router = useRouter()
+  const supabase = createClient()
 
   async function handleRemove(e: React.MouseEvent) {
+
     e.stopPropagation()
     e.preventDefault()
 
@@ -22,23 +25,24 @@ export default function RemoveFromCollectionButton({ collectionId, itemId }: Pro
       .eq("item_id", itemId)
 
     router.refresh()
+
   }
 
   return (
     <button
       onClick={handleRemove}
       className="
-        bg-red-600 
-        hover:bg-red-700 
-        text-white 
-        text-xs 
-        w-6 
-        h-6 
-        rounded-full 
-        flex 
-        items-center 
-        justify-center 
-        shadow-lg 
+        bg-red-600
+        hover:bg-red-700
+        text-white
+        text-xs
+        w-6
+        h-6
+        rounded-full
+        flex
+        items-center
+        justify-center
+        shadow-lg
         transition
       "
     >

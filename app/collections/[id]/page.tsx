@@ -4,11 +4,12 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default async function CollectionPage({ params }: PageProps) {
-  const { id } = await params
+
+  const { id } = params
   const supabase = await createServerComponentClient()
 
   // Obtener colección
@@ -55,8 +56,10 @@ export default async function CollectionPage({ params }: PageProps) {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+
           {items.map((item: any) => (
             <div key={item.catalogId} className="group">
+
               <div className="relative overflow-hidden rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-all duration-500 group-hover:-translate-y-2 group-hover:scale-[1.02]">
 
                 <div className="absolute top-3 right-3 z-50">
@@ -82,18 +85,23 @@ export default async function CollectionPage({ params }: PageProps) {
                   <h3 className="text-sm font-semibold truncate">
                     {item.title}
                   </h3>
+
                   {item.year && (
                     <p className="text-xs text-gray-400 mt-1">
                       {item.year}
                     </p>
                   )}
+
                 </div>
 
               </div>
+
             </div>
           ))}
+
         </div>
       )}
+
     </div>
   )
 }

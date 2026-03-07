@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 export default function StatsPage() {
+
+  const supabase = createClient();
+
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
+
     async function fetchStats() {
+
       const { data } = await supabase
         .from("movies")
         .select("*");
@@ -16,13 +21,14 @@ export default function StatsPage() {
       if (!data) return;
 
       const total = data.length;
-      const dvds = data.filter(m => m.format === "DVD").length;
-      const bluray = data.filter(m => m.format === "Blu-ray").length;
-      const watched = data.filter(m => m.watched).length;
-      const pending = data.filter(m => !m.watched).length;
-      const packs = data.filter(m => m.is_pack).length;
+      const dvds = data.filter((m) => m.format === "DVD").length;
+      const bluray = data.filter((m) => m.format === "Blu-ray").length;
+      const watched = data.filter((m) => m.watched).length;
+      const pending = data.filter((m) => !m.watched).length;
+      const packs = data.filter((m) => m.is_pack).length;
 
-      const rated = data.filter(m => m.rating !== null);
+      const rated = data.filter((m) => m.rating !== null);
+
       const avgRating = rated.length
         ? (rated.reduce((sum, m) => sum + m.rating, 0) / rated.length).toFixed(2)
         : "0";
@@ -36,20 +42,25 @@ export default function StatsPage() {
         packs,
         avgRating,
       });
+
     }
 
     fetchStats();
+
   }, []);
 
   if (!stats) return <div className="text-white p-10">Cargando...</div>;
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
+
       <Link href="/" className="text-gray-400 hover:text-white">
         ← Volver
       </Link>
 
-      <h1 className="text-4xl font-bold mb-10 mt-6">📊 Estadísticas</h1>
+      <h1 className="text-4xl font-bold mb-10 mt-6">
+        📊 Estadísticas
+      </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
 
@@ -89,6 +100,7 @@ export default function StatsPage() {
         </div>
 
       </div>
+
     </main>
   );
 }

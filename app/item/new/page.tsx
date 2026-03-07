@@ -1,10 +1,13 @@
-import { supabase } from "@/lib/supabase"
+import { createServerComponentClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import NewItemClient from "@/components/items/NewItemClient"
 
 export default function NewItemPage() {
+
   const handleCreate = async (data: any) => {
     "use server"
+
+    const supabase = await createServerComponentClient()
 
     const { data: insertedItem, error } = await supabase
       .from("items")

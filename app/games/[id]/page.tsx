@@ -1,10 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import { useParams, useRouter } from "next/navigation"
 
 export default function GameDetailPage() {
+
+  const supabase = createClient()
+
   const { id } = useParams()
   const router = useRouter()
 
@@ -12,7 +15,9 @@ export default function GameDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
     async function loadGame() {
+
       // 1️⃣ Buscar catalog_item
       const { data: catalogItem } = await supabase
         .from("catalog_items")
@@ -38,17 +43,27 @@ export default function GameDetailPage() {
       })
 
       setLoading(false)
+
     }
 
     if (id) loadGame()
+
   }, [id])
 
   if (loading) {
-    return <div className="min-h-screen bg-black text-white p-20">Cargando...</div>
+    return (
+      <div className="min-h-screen bg-black text-white p-20">
+        Cargando...
+      </div>
+    )
   }
 
   if (!game) {
-    return <div className="min-h-screen bg-black text-white p-20">No encontrado</div>
+    return (
+      <div className="min-h-screen bg-black text-white p-20">
+        No encontrado
+      </div>
+    )
   }
 
   return (
@@ -65,6 +80,7 @@ export default function GameDetailPage() {
         )}
 
         <div>
+
           <h1 className="text-5xl font-bold mb-6">
             {game.title}
           </h1>
@@ -74,17 +90,19 @@ export default function GameDetailPage() {
               📅 Año: {game.year}
             </p>
           )}
-{game.metacritic && (
-  <p className="text-sm text-green-400 mt-1">
-    ⭐ Metacritic: {game.metacritic}
-  </p>
-)}
 
-{game.rating && (
-  <p className="text-sm text-purple-400">
-    🎮 Rating RAWG: {game.rating.toFixed(1)}
-  </p>
-)}
+          {game.metacritic && (
+            <p className="text-sm text-green-400 mt-1">
+              ⭐ Metacritic: {game.metacritic}
+            </p>
+          )}
+
+          {game.rating && (
+            <p className="text-sm text-purple-400">
+              🎮 Rating RAWG: {game.rating.toFixed(1)}
+            </p>
+          )}
+
           {game.platform && (
             <p className="text-gray-400 mb-2">
               🎮 Plataforma: {game.platform}
@@ -105,12 +123,14 @@ export default function GameDetailPage() {
 
           <button
             onClick={async () => {
+
               await supabase
                 .from("collection_items")
                 .delete()
                 .eq("catalog_item_id", game.id)
 
               router.push("/games")
+
             }}
             className="bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 transition"
           >
@@ -120,6 +140,7 @@ export default function GameDetailPage() {
         </div>
 
       </div>
+
     </div>
   )
 }

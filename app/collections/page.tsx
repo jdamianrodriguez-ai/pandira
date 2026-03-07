@@ -1,15 +1,20 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 
 export default function CollectionsPage() {
+
+  const supabase = createClient()
+
   const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+
     async function fetchCollections() {
+
       const { data } = await supabase
         .from("collections")
         .select("*")
@@ -17,9 +22,11 @@ export default function CollectionsPage() {
 
       setCollections(data || [])
       setLoading(false)
+
     }
 
     fetchCollections()
+
   }, [])
 
   return (
