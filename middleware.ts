@@ -5,7 +5,20 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname
 
-  const publicRoutes = ["/login", "/signup"]
+  const publicRoutes = [
+    "/login",
+    "/signup",
+    "/auth",
+  ]
+
+  // permitir archivos internos de next
+  if (
+    path.startsWith("/_next") ||
+    path.startsWith("/api") ||
+    path.startsWith("/favicon")
+  ) {
+    return NextResponse.next()
+  }
 
   const hasAuthCookie =
     request.cookies.get("sb-access-token") ||
@@ -20,10 +33,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
-    "/movie/:path*",
-    "/games/:path*",
-    "/books/:path*",
-    "/comics/:path*",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 }
