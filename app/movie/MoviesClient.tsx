@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import CollectionLayout from "@/components/items/CollectionLayout"
 import Link from "next/link"
 import Image from "next/image"
@@ -17,12 +17,17 @@ type Movie = {
 }
 
 export default function MoviesClient({ initialMovies }: { initialMovies: Movie[] }) {
-  const [items] = useState<Movie[]>(initialMovies || [])
+
+  const [items, setItems] = useState<Movie[]>(initialMovies || [])
   const [title, setTitle] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
+
+  useEffect(() => {
+    setItems(initialMovies || [])
+  }, [initialMovies])
 
   async function searchMovie(e: React.FormEvent) {
     e.preventDefault()

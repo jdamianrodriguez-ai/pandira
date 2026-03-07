@@ -8,55 +8,52 @@ import LogoutButton from "@/components/LogoutButton";
 
 export default function Sidebar() {
 
-  const supabase = createClient();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const filter = searchParams.get("filter");
+  const filter = searchParams?.get("filter") ?? null;
 
   const [collections, setCollections] = useState<any[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
 
-    async function fetchCollections() {
+    const supabase = createClient();
 
+    async function loadData() {
+
+      // usuario
+      const { data: userData } = await supabase.auth.getUser();
+      setUserEmail(userData?.user?.email ?? null);
+
+      // colecciones
       const { data, error } = await supabase
         .from("collections")
         .select("*")
         .eq("type", "manual")
         .order("name", { ascending: true });
 
-      if (error) {
-        console.error("Supabase error:", error);
-        setCollections([]);
-        return;
+      if (!error && data) {
+        setCollections(data);
       }
 
-      if (data) setCollections(data);
     }
 
-    async function fetchUser() {
+    loadData();
 
-      const { data } = await supabase.auth.getUser();
-      const email = data.user?.email ?? null;
-
-      setUserEmail(email);
-    }
-
-    fetchCollections();
-    fetchUser();
-
-  }, [supabase]);
+  }, []);
 
   function isActive(path: string, filterValue?: string) {
 
     if (pathname !== path) return false;
 
-    if (filterValue) {
-      return filter === filterValue;
+    // página base (Películas)
+    if (!filterValue) {
+      return filter === null;
     }
 
-    return !filter;
+    // filtros
+    return filter === filterValue;
+
   }
 
   function collectionActive(id: string) {
@@ -70,6 +67,7 @@ export default function Sidebar() {
     }
 
     return "relative block px-4 py-2 rounded-xl transition-all duration-300 text-gray-400 hover:text-white hover:bg-white/5";
+
   }
 
   return (
@@ -97,7 +95,10 @@ export default function Sidebar() {
             Colección
           </div>
 
-          <Link href="/movie" className={linkClasses(isActive("/movie"))}>
+          <Link
+            href="/movie"
+            className={linkClasses(isActive("/movie"))}
+          >
             🎬 Películas
           </Link>
 
@@ -137,7 +138,10 @@ export default function Sidebar() {
 
           </div>
 
-          <Link href="/games" className={linkClasses(pathname === "/games")}>
+          <Link
+            href="/games"
+            className={linkClasses(pathname === "/games")}
+          >
             🎮 Videojuegos
           </Link>
 
@@ -163,8 +167,8 @@ export default function Sidebar() {
 
       </nav>
 
-      {/* USER + LOGOUT */}
-      <div className="px-6 pb-8 border-t border-white/10 pt-6">
+      {/* USER */}
+      <div className="px-6 pb-2 border-t border-white/10 pt-6">
 
         {userEmail && (
           <div className="text-xs text-gray-400 mb-3 truncate">
@@ -172,10 +176,14 @@ export default function Sidebar() {
           </div>
         )}
 
-        <LogoutButton />
+      </div>
 
+      {/* LOGOUT */}
+      <div className="px-6 pb-8">
+        <LogoutButton />
       </div>
 
     </aside>
   );
+
 }
