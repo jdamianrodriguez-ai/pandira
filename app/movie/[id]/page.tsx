@@ -3,6 +3,20 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useParams, useRouter } from "next/navigation"
+import Image from "next/image"
+
+type MovieData = {
+  id: string
+  title?: string
+  year?: number
+  runtime?: number
+  vote_average?: number
+  director?: string
+  genre?: string[] | string
+  actors?: string[] | string
+  description?: string
+  cover_url?: string
+}
 
 export default function MovieDetailPage() {
 
@@ -11,14 +25,13 @@ export default function MovieDetailPage() {
   const { id } = useParams()
   const router = useRouter()
 
-  const [movie, setMovie] = useState<any>(null)
+  const [movie, setMovie] = useState<MovieData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
 
     async function loadMovie() {
 
-      // 1️⃣ Buscar catalog_item
       const { data: catalogItem } = await supabase
         .from("catalog_items")
         .select("*")
@@ -30,7 +43,6 @@ export default function MovieDetailPage() {
         return
       }
 
-      // 2️⃣ Buscar datos específicos en movies usando tmdb_id
       const { data: movieData } = await supabase
         .from("movies")
         .select("*")
@@ -72,9 +84,11 @@ export default function MovieDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
         {movie.cover_url && (
-          <img
+          <Image
             src={movie.cover_url}
-            alt={movie.title}
+            alt={movie.title || "Poster"}
+            width={400}
+            height={600}
             className="w-full max-w-md aspect-[2/3] object-cover rounded-2xl"
           />
         )}
@@ -111,13 +125,17 @@ export default function MovieDetailPage() {
 
           {movie.genre && (
             <p className="text-gray-400 mb-2">
-              🏷 Géneros: {Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre}
+              🏷 Géneros: {Array.isArray(movie.genre)
+                ? movie.genre.join(", ")
+                : movie.genre}
             </p>
           )}
 
           {movie.actors && (
             <p className="text-gray-400 mb-6">
-              🎭 Actores: {Array.isArray(movie.actors) ? movie.actors.join(", ") : movie.actors}
+              🎭 Actores: {Array.isArray(movie.actors)
+                ? movie.actors.join(", ")
+                : movie.actors}
             </p>
           )}
 

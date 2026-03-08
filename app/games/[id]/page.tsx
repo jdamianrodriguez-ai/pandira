@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useParams, useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function GameDetailPage() {
 
@@ -18,7 +19,6 @@ export default function GameDetailPage() {
 
     async function loadGame() {
 
-      // 1️⃣ Buscar catalog_item
       const { data: catalogItem } = await supabase
         .from("catalog_items")
         .select("*")
@@ -30,7 +30,6 @@ export default function GameDetailPage() {
         return
       }
 
-      // 2️⃣ Buscar datos específicos en games usando rawg_id
       const { data: gameData } = await supabase
         .from("games")
         .select("*")
@@ -72,9 +71,11 @@ export default function GameDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
         {game.cover_url && (
-          <img
+          <Image
             src={game.cover_url}
             alt={game.title}
+            width={400}
+            height={600}
             className="w-full max-w-md aspect-[2/3] object-cover rounded-2xl"
           />
         )}

@@ -15,8 +15,9 @@ export function validateItem(data: any): ValidationError[] {
     return errors
   }
 
-  const { requiredFields = [], validationRules = {} } = typeConfig as any
+  const { requiredFields = [], validationRules = {} } = typeConfig
 
+  // Required fields
   requiredFields.forEach((field: string) => {
     if (!data[field] || data[field] === "") {
       errors.push({
@@ -26,6 +27,7 @@ export function validateItem(data: any): ValidationError[] {
     }
   })
 
+  // Rules
   Object.entries(validationRules).forEach(([field, rules]: any) => {
     const value = data[field]
     if (value === undefined || value === null) return

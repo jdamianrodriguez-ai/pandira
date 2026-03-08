@@ -2,6 +2,7 @@ import RemoveFromCollectionButton from "@/components/RemoveFromCollectionButton"
 import { createServerComponentClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 
 interface PageProps {
   params: { id: string }
@@ -70,18 +71,23 @@ export default async function CollectionPage({ params }: PageProps) {
                 </div>
 
                 <Link href={`/item/${item.catalogId}`}>
+
                   {item.cover_url && (
-                    <img
+                    <Image
                       src={item.cover_url}
                       alt={item.title}
+                      width={300}
+                      height={450}
                       className="relative z-0 w-full aspect-[2/3] object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                     />
                   )}
+
                 </Link>
 
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-90 pointer-events-none" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-20 pointer-events-none">
+
                   <h3 className="text-sm font-semibold truncate">
                     {item.title}
                   </h3>
