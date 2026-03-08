@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 export default function NewCollectionPage() {
+
+  const supabase = createClient()
   const router = useRouter()
 
   const [name, setName] = useState("")
@@ -50,7 +52,6 @@ export default function NewCollectionPage() {
 
         <form onSubmit={handleCreate} className="space-y-8">
 
-          {/* Nombre */}
           <div>
             <label className="block text-sm text-gray-400 mb-2">
               Nombre
@@ -63,7 +64,6 @@ export default function NewCollectionPage() {
             />
           </div>
 
-          {/* Descripción */}
           <div>
             <label className="block text-sm text-gray-400 mb-2">
               Descripción
@@ -75,13 +75,13 @@ export default function NewCollectionPage() {
             />
           </div>
 
-          {/* Tipo */}
           <div>
             <label className="block text-sm text-gray-400 mb-2">
               Tipo de colección
             </label>
 
             <div className="flex gap-4">
+
               <button
                 type="button"
                 onClick={() => setType("manual")}
@@ -105,6 +105,7 @@ export default function NewCollectionPage() {
               >
                 Inteligente
               </button>
+
             </div>
           </div>
 
