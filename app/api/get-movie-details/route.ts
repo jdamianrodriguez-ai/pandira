@@ -1,48 +1,48 @@
 import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
+
   const { searchParams } = new URL(req.url)
   const id = searchParams.get("id")
 
   if (!id) {
-    return NextResponse.json({ error: "No ID provided" }, { status: 400 })
+    return NextResponse.json({ error: "ID requerido" }, { status: 400 })
   }
+
+  const apiKey = process.env.TMDB_API_KEY
 
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/${id}?api_key=${process.env.TMDB_API_KEY}&append_to_response=credits&language=es-ES`
+    `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=es-ES&append_to_response=credits`
   )
 
-  const data = await res.json()
-
-  if (!data.id) {
-    return NextResponse.json({ error: "Movie not found" }, { status: 404 })
+  if (!res.ok) {
+    return NextResponse.json({ error: "Error TMDB" }, { status: 400 })
   }
 
-  const actors =
-    data.credits?.cast?.slice(0, 5).map((a: any) => a.name) || []
+  const movie = await res.json()
 
   const director =
-    data.credits?.crew?.find((c: any) => c.job === "Director")?.name || null
+    movie.credits?.crew?.find((p: any) => p.job === "Director")?.name || null
 
-  const genres =
-    data.genres?.map((g: any) => g.name) || []
+  const actors =
+    movie.credits?.cast?.slice(0, 5).map((a: any) => a.name) || []
 
   return NextResponse.json({
-    tmdb_id: data.id,
-    title: data.title,
-    original_title: data.original_title,
-    year: data.release_date?.split("-")[0] || null,
-    overview: data.overview,
-    poster: data.poster_path
-      ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+    tmdb_id: movie.id,
+    title: movie.title,
+    original_title: movie.original_title,
+    year: movie.release_date ? movie.release_date.split("-")[0] : null,
+    overview: movie.overview || null,
+    runtime: movie.runtime || null,
+    vote_average: movie.vote_average || null,
+    poster: movie.poster_path
+      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
       : null,
-    backdrop_url: data.backdrop_path
-      ? `https://image.tmdb.org/t/p/original${data.backdrop_path}`
+    backdrop_url: movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
       : null,
-    runtime: data.runtime || null,
-    vote_average: data.vote_average || null,
+    genres: movie.genres?.map((g: any) => g.name) || [],
     director,
     actors,
-    genres,
   })
 }

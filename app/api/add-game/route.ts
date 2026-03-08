@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createServerComponentClient } from "@/lib/supabase/server"
 
 export async function POST(req: Request) {
+
   const supabase = await createServerComponentClient()
 
   const {
@@ -9,30 +10,46 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 })
-  }
-
-  const { rawgId } = await req.json()
-
-  if (!rawgId) {
-    return NextResponse.json({ error: "Falta rawgId" }, { status: 400 })
+    return NextResponse.json(
+      { error: "No autenticado" },
+      { status: 401 }
+    )
   }
 
   try {
-    const detailsRes = await fetch(
-      `http://localhost:3000/api/get-game-details?id=${rawgId}`
-    )
 
-    if (!detailsRes.ok) {
+    const body = await req.json()
+
+    console.log("BODY RECEIVED:", body)
+
+    const rawgId =
+      body.rawgId ||
+      body.id ||
+      body.gameId
+
+    if (!rawgId) {
       return NextResponse.json(
-        { error: "Error obteniendo detalles" },
-        { status: 500 }
+        { error: "rawgId no recibido", body },
+        { status: 400 }
       )
     }
 
-    const fullData = await detailsRes.json()
+    const url = new URL(req.url)
 
-    // 🔎 1️⃣ Buscar o crear catalog_item
+    const detailsRes = await fetch(
+      `${url.origin}/api/get-game-details?id=${rawgId}`
+    )
+
+    if (!detailsRes.ok) {
+      throw new Error("Error obteniendo datos de RAWG")
+    }
+
+    const gameData = await detailsRes.json()
+
+    console.log("GAME DATA:", gameData)
+
+    // 1️⃣ catalog_items
+
     let { data: catalogItem } = await supabase
       .from("catalog_items")
       .select("*")
@@ -41,86 +58,112 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (!catalogItem) {
+
       const { data, error } = await supabase
         .from("catalog_items")
         .insert({
           type: "game",
-          title: fullData.title,
-          original_title: fullData.title,
-          year: fullData.year ? parseInt(fullData.year) : null,
-          description: fullData.description,
-          cover_url: fullData.cover_url,
-          backdrop_url: fullData.backdrop_url,
+          title: gameData.title,
+          year: gameData.year,
+          description: gameData.description,
+          cover_url: gameData.cover_url,
           external_id: rawgId.toString(),
           external_source: "rawg",
         })
         .select()
         .single()
 
-      if (error) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 500 }
-        )
-      }
+      if (error) throw error
 
       catalogItem = data
+
     }
 
-    // 🎮 2️⃣ Crear o asegurar registro en games
+    // 2️⃣ games
+
     const { data: existingGame } = await supabase
       .from("games")
       .select("*")
-      .eq("rawg_id", rawgId)
+      .eq("id", catalogItem.id)
       .maybeSingle()
 
     if (!existingGame) {
-      const { error: gameError } = await supabase
+
+      const { error } = await supabase
         .from("games")
         .insert({
+          id: catalogItem.id,
           rawg_id: rawgId,
-          platform: fullData.platforms || null,
-          genre: fullData.genres || null,
+          genre: gameData.genres || null,
+          platform: gameData.platforms || null,
         })
 
-      if (gameError) {
-        return NextResponse.json(
-          { error: gameError.message },
-          { status: 500 }
-        )
-      }
+      if (error) throw error
+
     }
 
-    // 📚 3️⃣ Añadir a colección
-    const { data: existingCollection } = await supabase
+    // 3️⃣ colección
+
+    let { data: collection } = await supabase
+      .from("collections")
+      .select("*")
+      .limit(1)
+      .maybeSingle()
+
+    if (!collection) {
+
+      const { data, error } = await supabase
+        .from("collections")
+        .insert({
+          name: "Mi colección",
+          type: "manual",
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      collection = data
+
+    }
+
+    // 4️⃣ collection_items
+
+    const { data: existingItem } = await supabase
       .from("collection_items")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("collection_id", collection.id)
       .eq("catalog_item_id", catalogItem.id)
       .maybeSingle()
 
-    if (!existingCollection) {
-      const { error: collectionError } = await supabase
+    if (!existingItem) {
+
+      const { error } = await supabase
         .from("collection_items")
         .insert({
-          user_id: user.id,
+          collection_id: collection.id,
           catalog_item_id: catalogItem.id,
           status: "owned",
         })
 
-      if (collectionError) {
-        return NextResponse.json(
-          { error: collectionError.message },
-          { status: 500 }
-        )
-      }
+      if (error) throw error
+
     }
 
     return NextResponse.json({ success: true })
+
   } catch (err: any) {
+
+    console.error("ADD GAME ERROR:", err)
+
     return NextResponse.json(
-      { error: err.message || "Error inesperado" },
+      {
+        error: err.message || "Error inesperado",
+        details: err
+      },
       { status: 500 }
     )
+
   }
+
 }

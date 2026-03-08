@@ -15,12 +15,14 @@ export default function GamesClient({ initialGames }: any) {
   const [loadingEnrich, setLoadingEnrich] = useState(false)
 
   async function searchGame(e: React.FormEvent) {
+
     e.preventDefault()
     if (!title) return
 
     setError(null)
 
     try {
+
       const res = await fetch(`/api/search-game?query=${title}`)
       const data = await res.json()
 
@@ -28,30 +30,62 @@ export default function GamesClient({ initialGames }: any) {
 
       setSearchResults(data.results || [])
       setModalOpen(true)
+
     } catch {
+
       setError("Error buscando videojuego.")
+
     }
+
   }
 
   async function addSelectedGame(game: any) {
+
     setModalOpen(false)
     setError(null)
 
     try {
-      const res = await fetch(`/api/add-game`, {
-        method: "POST",
-        body: JSON.stringify({ rawgId: game.id }),
-      })
 
-      if (!res.ok) {
-        setError("Error añadiendo videojuego.")
+      const rawgId =
+        game.rawg_id ||
+        game.id ||
+        game.gameId
+
+      if (!rawgId) {
+        console.error("GAME OBJECT:", game)
+        setError("ID de juego inválido.")
         return
       }
 
+      const res = await fetch(`/api/add-game`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          rawgId
+        })
+      })
+
+      if (!res.ok) {
+
+        const data = await res.json()
+        console.error("ADD GAME ERROR:", data)
+
+        setError("Error añadiendo videojuego.")
+        return
+
+      }
+
       window.location.reload()
-    } catch {
+
+    } catch (err) {
+
+      console.error(err)
       setError("Algo ha fallado.")
+
     }
+
   }
 
   async function enrichGames() {
@@ -81,6 +115,7 @@ export default function GamesClient({ initialGames }: any) {
   }
 
   return (
+
     <CollectionLayout background="/backgrounds/game-texture.png">
 
       <div className="relative px-10 pt-20 pb-16 text-white">
@@ -189,5 +224,7 @@ export default function GamesClient({ initialGames }: any) {
       />
 
     </CollectionLayout>
+
   )
+
 }

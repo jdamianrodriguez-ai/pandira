@@ -48,25 +48,37 @@ export default function MoviesClient({ initialMovies }: { initialMovies: Movie[]
     }
   }
 
-  async function addSelectedMovie(movie: any) {
+  async function addSelectedMovie(movie: any, format: "DVD" | "Blu-ray") {
+
     setModalOpen(false)
     setError(null)
 
     try {
+
       const res = await fetch(`/api/add-movie`, {
         method: "POST",
-        body: JSON.stringify({ tmdbId: movie.tmdb_id }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tmdbId: movie.tmdb_id,
+          format: format
+        }),
       })
 
+      const data = await res.json()
+
       if (!res.ok) {
-        setError("Error añadiendo película.")
+        setError(data.error || "Error añadiendo película.")
         return
       }
 
       window.location.reload()
+
     } catch {
       setError("Algo ha fallado.")
     }
+
   }
 
   return (

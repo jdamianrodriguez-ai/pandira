@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
+
   const { searchParams } = new URL(req.url)
   const id = searchParams.get("id")
 
   if (!id) {
-    return NextResponse.json({ error: "ID requerido" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID requerido" },
+      { status: 400 }
+    )
   }
 
   const apiKey = process.env.RAWG_API_KEY
@@ -15,7 +19,10 @@ export async function GET(req: Request) {
   )
 
   if (!res.ok) {
-    return NextResponse.json({ error: "Error RAWG" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Error RAWG" },
+      { status: 400 }
+    )
   }
 
   const game = await res.json()
@@ -28,7 +35,9 @@ export async function GET(req: Request) {
     cover_url: game.background_image || null,
     genres: game.genres?.map((g: any) => g.name) || [],
     rating: game.rating || null,
+    metacritic: game.metacritic || null,
     platforms:
       game.platforms?.map((p: any) => p.platform.name).join(", ") || null,
   })
+
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Image from "next/image"
 
 type MovieData = {
@@ -21,9 +21,7 @@ type MovieData = {
 export default function MovieDetailPage() {
 
   const supabase = createClient()
-
   const { id } = useParams()
-  const router = useRouter()
 
   const [movie, setMovie] = useState<MovieData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -46,7 +44,7 @@ export default function MovieDetailPage() {
       const { data: movieData } = await supabase
         .from("movies")
         .select("*")
-        .eq("tmdb_id", parseInt(catalogItem.external_id))
+        .eq("id", catalogItem.id)
         .maybeSingle()
 
       setMovie({
@@ -61,6 +59,33 @@ export default function MovieDetailPage() {
     if (id) loadMovie()
 
   }, [id])
+
+  async function handleDelete() {
+
+    if (!movie) return
+
+    // eliminar de colección
+    await supabase
+      .from("collection_items")
+      .delete()
+      .eq("catalog_item_id", movie.id)
+
+    // eliminar datos específicos de película
+    await supabase
+      .from("movies")
+      .delete()
+      .eq("id", movie.id)
+
+    // eliminar del catálogo
+    await supabase
+      .from("catalog_items")
+      .delete()
+      .eq("id", movie.id)
+
+    // recargar completamente para actualizar contadores
+    window.location.href = "/movie"
+
+  }
 
   if (loading) {
     return (
@@ -146,16 +171,7 @@ export default function MovieDetailPage() {
           )}
 
           <button
-            onClick={async () => {
-
-              await supabase
-                .from("collection_items")
-                .delete()
-                .eq("catalog_item_id", movie.id)
-
-              router.push("/movie")
-
-            }}
+            onClick={handleDelete}
             className="bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 transition"
           >
             Eliminar de mi colección
