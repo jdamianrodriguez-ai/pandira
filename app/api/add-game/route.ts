@@ -102,12 +102,13 @@ export async function POST(req: Request) {
 
     }
 
-    // 3️⃣ colección
+    // 3️⃣ colección principal del usuario
 
     let { data: collection } = await supabase
       .from("collections")
       .select("*")
-      .limit(1)
+      .eq("user_id", user.id)
+      .eq("name", "Mi colección")
       .maybeSingle()
 
     if (!collection) {
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
         .insert({
           name: "Mi colección",
           type: "manual",
+          user_id: user.id,
         })
         .select()
         .single()

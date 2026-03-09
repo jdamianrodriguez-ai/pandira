@@ -5,6 +5,9 @@ import { videogameType } from "./types/videogame"
 export const typeRegistry = {
   movie: movieType,
   book: bookType,
+
+  // Support both "game" and "videogame"
+  game: videogameType,
   videogame: videogameType,
 }
 
