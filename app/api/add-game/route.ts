@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 
     }
 
-    // 2️⃣ games
+    // 2️⃣ games (tabla de datos específicos del videojuego)
 
     const { data: existingGame } = await supabase
       .from("games")
@@ -94,8 +94,12 @@ export async function POST(req: Request) {
         .insert({
           id: catalogItem.id,
           rawg_id: rawgId,
+          title: gameData.title,
+          cover: gameData.cover_url,
+          year: gameData.year,
+          metacritic: gameData.metacritic || null,
           genre: gameData.genres || null,
-          platform: gameData.platforms || null,
+          platform: gameData.platforms || null
         })
 
       if (error) throw error
@@ -129,7 +133,7 @@ export async function POST(req: Request) {
 
     }
 
-    // 4️⃣ collection_items
+    // 4️⃣ collection_items (relación usuario ↔ juego)
 
     const { data: existingItem } = await supabase
       .from("collection_items")

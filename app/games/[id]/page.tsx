@@ -19,26 +19,28 @@ export default function GameDetailPage() {
 
     async function loadGame() {
 
+      // catalog item (datos globales)
       const { data: catalogItem } = await supabase
         .from("catalog_items")
         .select("*")
         .eq("id", id)
         .single()
 
+      // datos del usuario
+      const { data: gameData } = await supabase
+        .from("games")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle()
+
       if (!catalogItem) {
         setLoading(false)
         return
       }
 
-      const { data: gameData } = await supabase
-        .from("games")
-        .select("*")
-        .eq("rawg_id", parseInt(catalogItem.external_id))
-        .maybeSingle()
-
       setGame({
         ...catalogItem,
-        ...gameData,
+        ...gameData
       })
 
       setLoading(false)
@@ -70,9 +72,9 @@ export default function GameDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
 
-        {game.cover_url && (
+        {(game.cover || game.cover_url) && (
           <Image
-            src={game.cover_url}
+            src={game.cover || game.cover_url}
             alt={game.title}
             width={400}
             height={600}
@@ -92,18 +94,6 @@ export default function GameDetailPage() {
             </p>
           )}
 
-          {game.metacritic && (
-            <p className="text-sm text-green-400 mt-1">
-              ⭐ Metacritic: {game.metacritic}
-            </p>
-          )}
-
-          {game.rating && (
-            <p className="text-sm text-purple-400">
-              🎮 Rating RAWG: {game.rating.toFixed(1)}
-            </p>
-          )}
-
           {game.platform && (
             <p className="text-gray-400 mb-2">
               🎮 Plataforma: {game.platform}
@@ -116,24 +106,30 @@ export default function GameDetailPage() {
             </p>
           )}
 
+          {game.metacritic && (
+            <p className="text-green-400 mb-4">
+              ⭐ Metacritic: {game.metacritic}
+            </p>
+          )}
+
           {game.description && (
-            <div className="text-gray-300 leading-relaxed whitespace-pre-line mb-10">
+            <p className="text-gray-300 leading-relaxed mt-6">
               {game.description}
-            </div>
+            </p>
           )}
 
           <button
             onClick={async () => {
 
               await supabase
-                .from("collection_items")
+                .from("games")
                 .delete()
-                .eq("catalog_item_id", game.id)
+                .eq("id", id)
 
               router.push("/games")
 
             }}
-            className="bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 transition"
+            className="bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 transition mt-8"
           >
             Eliminar de mi colección
           </button>
