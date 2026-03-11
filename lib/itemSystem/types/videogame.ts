@@ -2,22 +2,19 @@ export const videogameType = {
   type: "videogame",
   label: "Video Games",
 
-  highlightFields: ["platform", "year", "rating"],
+  table: "games",
+
+  highlightFields: [
+    "platform",
+  ],
 
   detailFields: [
     "genre",
-    "format",
-    "condition",
-    "status",
-    "location",
-    "value_estimate",
   ],
 
   requiredFields: ["title"],
 
-  validationRules: {
-    rating: { min: 0, max: 10 },
-  },
+  validationRules: {},
 
   collectionBackground: "/backgrounds/videogame-texture.png",
 }

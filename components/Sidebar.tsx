@@ -28,7 +28,7 @@ export default function Sidebar() {
       const { data: userData } = await supabase.auth.getUser();
       setUserEmail(userData?.user?.email ?? null);
 
-      // colecciones
+      // colecciones manuales
       const { data, error } = await supabase
         .from("collections")
         .select("*")
@@ -112,9 +112,11 @@ export default function Sidebar() {
             Colección
           </div>
 
+          {/* PELÍCULAS */}
+
           <Link
-            href="/movie"
-            className={linkClasses(isActive("/movie"))}
+            href="/collections/movie"
+            className={linkClasses(isActive("/collections/movie"))}
           >
             🎬 Películas
           </Link>
@@ -122,15 +124,15 @@ export default function Sidebar() {
           <div className="mt-4 ml-4 space-y-2 border-l border-white/10 pl-4">
 
             <Link
-              href="/movie?filter=DVD"
-              className={linkClasses(isActive("/movie", "DVD"))}
+              href="/collections/movie?filter=DVD"
+              className={linkClasses(isActive("/collections/movie", "DVD"))}
             >
               DVD ({dvdCount})
             </Link>
 
             <Link
-              href="/movie?filter=Blu-ray"
-              className={linkClasses(isActive("/movie", "Blu-ray"))}
+              href="/collections/movie?filter=Blu-ray"
+              className={linkClasses(isActive("/collections/movie", "Blu-ray"))}
             >
               Blu-ray ({blurayCount})
             </Link>
@@ -155,9 +157,11 @@ export default function Sidebar() {
 
           </div>
 
+          {/* VIDEOJUEGOS */}
+
           <Link
-            href="/games"
-            className={linkClasses(pathname === "/games")}
+            href="/collections/videogame"
+            className={linkClasses(pathname === "/collections/videogame")}
           >
             🎮 Videojuegos
           </Link>

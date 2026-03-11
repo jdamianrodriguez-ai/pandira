@@ -1,141 +1,115 @@
-import AddToCollectionButton from "@/components/AddToCollectionButton"
 import { createServerComponentClient } from "@/lib/supabase/server"
+import { getTypeConfig } from "@/lib/itemSystem/typeRegistry"
 import { notFound } from "next/navigation"
-import Link from "next/link"
-import DeleteItemButton from "@/components/items/DeleteItemButton"
 
-interface PageProps {
+export default async function ItemPage({
+  params,
+}: {
   params: Promise<{ id: string }>
-}
+}) {
 
-export default async function ItemPage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createServerComponentClient()
 
-  const { data: item, error } = await supabase
-    .from("items")
-    .select("*")
-    .eq("id", id)
-    .single()
+  const tables = ["movies", "games"]
 
-  if (error || !item) return notFound()
+  let item: any = null
+  let type: string | null = null
 
-  const deleteItem = async (formData: FormData) => {
-    "use server"
-    const supabase = await createServerComponentClient()
-    const deleteId = formData.get("id") as string
-    await supabase.from("items").delete().eq("id", deleteId)
+  for (const table of tables) {
+
+    const { data } = await supabase
+      .from(table)
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (data) {
+      item = data
+      type = table === "movies" ? "movie" : "videogame"
+      break
+    }
+
   }
 
-  const genres =
-    Array.isArray(item.genre) && item.genre.length > 0
-      ? item.genre.join(", ")
-      : item.genre
+  if (!item || !type) {
+    return notFound()
+  }
+
+  const config = getTypeConfig(type)
+
+  if (!config) {
+    return notFound()
+  }
+
+  const cover =
+    item.cover ||
+    item.cover_url ||
+    item.poster ||
+    item.poster_url ||
+    null
+
+  const year =
+    item.year ||
+    item.release_year ||
+    (item.release_date ? new Date(item.release_date).getFullYear() : null)
+
+  const description =
+    item.description ||
+    item.overview ||
+    null
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="px-16 pt-20 text-white flex gap-16">
 
-      {/* BACKDROP */}
-      {item.backdrop_url && (
-        <div className="relative h-[600px] w-full overflow-hidden">
+      {/* PORTADA */}
+      <div className="w-[420px] flex-shrink-0">
+        {cover && (
           <img
-            src={item.backdrop_url}
+            src={cover}
             alt={item.title}
-            className="absolute inset-0 w-full h-full object-cover scale-110"
+            className="rounded-xl shadow-2xl"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
-        </div>
-      )}
-
-      <div className="max-w-6xl mx-auto px-8 -mt-64 relative z-10">
-
-        {/* HEADER */}
-        <div className="flex justify-between items-start mb-20">
-
-          {/* IZQUIERDA */}
-          <div className="max-w-3xl">
-
-            <h1 className="text-6xl md:text-7xl font-semibold tracking-tight leading-tight mb-6 drop-shadow-2xl">
-              {item.title}
-            </h1>
-
-            <div className="text-gray-300 text-sm tracking-wide">
-              {item.year && <span>{item.year}</span>}
-              {item.runtime && <span> • {item.runtime} min</span>}
-              {genres && <span> • {genres}</span>}
-              {item.format && <span> • {item.format}</span>}
-            </div>
-
-            {item.vote_average && (
-              <div className="mt-4 flex items-center gap-2">
-                <span className="text-yellow-400 text-xl">★</span>
-                <span className="text-gray-200 text-lg">
-                  {Number(item.vote_average).toFixed(1)}
-                </span>
-              </div>
-            )}
-
-            {item.director && (
-              <div className="mt-3 text-gray-300 text-sm">
-                Dir. {item.director}
-              </div>
-            )}
-
-            {item.actors && item.actors.length > 0 && (
-              <div className="mt-4 text-gray-400 text-sm leading-relaxed">
-                {item.actors.slice(0, 5).join(" · ")}
-              </div>
-            )}
-
-            {/* BOTÓN AÑADIR A COLECCIÓN */}
-            <div className="mt-6">
-              <AddToCollectionButton itemId={item.id} />
-            </div>
-
-          </div>
-
-          {/* DERECHA */}
-          <div className="flex gap-3 items-start">
-            <Link
-              href={`/item/${item.id}/edit`}
-              className="bg-gray-800 hover:bg-gray-700 transition px-4 py-2 rounded-lg text-sm"
-            >
-              Edit
-            </Link>
-
-            <DeleteItemButton
-              itemId={item.id}
-              deleteAction={deleteItem}
-            />
-          </div>
-
-        </div>
-
-        {/* CONTENT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-20 pb-20">
-
-          {/* Poster */}
-          <div>
-            {item.cover_url && (
-              <img
-                src={item.cover_url}
-                alt={item.title}
-                className="w-full max-w-xs rounded-xl shadow-[0_40px_80px_rgba(0,0,0,0.8)]"
-              />
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="md:col-span-2">
-            {item.description && (
-              <p className="text-gray-300 leading-relaxed text-lg max-w-3xl">
-                {item.description}
-              </p>
-            )}
-          </div>
-
-        </div>
+        )}
       </div>
+
+      {/* INFO */}
+      <div className="max-w-2xl">
+
+        <h1 className="text-5xl font-bold mb-6">
+          {item.title}
+        </h1>
+
+        <div className="space-y-2 mb-6 text-gray-300">
+
+          {year && (
+            <div>
+              📅 Año: {year}
+            </div>
+          )}
+
+          {item.platform && (
+            <div>
+              🎮 Plataforma: {item.platform}
+            </div>
+          )}
+
+          {item.genre && (
+            <div>
+              🧩 Géneros: {Array.isArray(item.genre) ? item.genre.join(", ") : item.genre}
+            </div>
+          )}
+
+        </div>
+
+        {description && (
+          <p className="text-gray-300 leading-relaxed">
+            {description}
+          </p>
+        )}
+
+      </div>
+
     </div>
   )
 }

@@ -2,6 +2,8 @@ export const movieType = {
   type: "movie",
   label: "Movies",
 
+  table: "movies",
+
   highlightFields: ["year", "rating", "format"],
 
   detailFields: [
